@@ -1,4 +1,4 @@
-package ck.entity;
+package ck.model;
 
 public class LenhDat {
 	private String maCK;

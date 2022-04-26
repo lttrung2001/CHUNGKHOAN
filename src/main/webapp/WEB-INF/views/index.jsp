@@ -120,7 +120,7 @@ html {
 				</div>
 				<div class="row">
 					<form:label cssClass="col-label" path="soLuong">Khối lượng:</form:label>
-					<form:input cssClass="col-input" path="soLuong" type="number" min="1" />
+					<form:input cssClass="col-input" path="soLuong" type="number" min="10" />
 					<form:errors cssClass="error" path="soLuong"></form:errors>
 				</div>
 				<div class="row">

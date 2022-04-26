@@ -1,21 +1,19 @@
 package ck.controller;
 
-import java.sql.CallableStatement;
-
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import ck.entity.LenhDat;
+
+import ck.model.LenhDat;
 
 @Controller
 public class HomeController {
@@ -32,17 +30,9 @@ public class HomeController {
 		return "index";
 	}
 	@RequestMapping(value = "index", method = RequestMethod.POST)
-	public String index(ModelMap model, @ModelAttribute("lenhDat") LenhDat lenhDat, BindingResult errors) throws SQLException {
-//		Date now = new Date();
-//		Date gioBatDau = new Date();
-//		gioBatDau.setHours(9);
-//		gioBatDau.setMinutes(0);
-//		gioBatDau.setSeconds(0);
-//		if (now.before(gioBatDau)) {
-//			model.addAttribute("HEAD_MESSAGE", "Sàn chưa mở");
-//			model.addAttribute("lenhDat", lenhDat);
-//			return "index";
-//		}
+	public String index(ModelMap model, 
+						@ModelAttribute("lenhDat") LenhDat lenhDat, 
+						BindingResult errors) throws SQLException {
 		if (lenhDat.getMaCK().isBlank()) {
 			errors.rejectValue("maCK", "lenhDat", "Không được để trống!");
 		}
@@ -63,8 +53,8 @@ public class HomeController {
 		}
 		if (errors.hasErrors()) {
 			model.addAttribute("HEAD_MESSAGE", "Vui lòng sửa các lỗi bên dưới");
-			model.addAttribute("lenhDat", lenhDat);
 			model.addAttribute("trangThaiDatClass", "head-msg-fail");
+			model.addAttribute("lenhDat", lenhDat);
 			return "index";
 		}
 		lenhDat.setNgayDat(getToday());
@@ -74,24 +64,14 @@ public class HomeController {
         DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
         try {
         	Connection connection = DriverManager.getConnection(dbURL,user,pass);
-        	// CACH 1
-            CallableStatement statement = connection.prepareCall("{CALL SP_KHOPLENH_LO(?,?,?,?,?)}");
-            statement.setString(1, lenhDat.getMaCK());
-            statement.setString(2, lenhDat.getNgayDat());
-            statement.setString(3, lenhDat.getLoaiGD().toString());
-            statement.setInt(4, lenhDat.getSoLuong());
-            statement.setDouble(5, lenhDat.getGiaDat());
-            statement.execute();
-        	
-        	// CACH 2
-//        	Statement statement = connection.createStatement();
-//        	String sql = String.format("INSERT INTO LENHDAT (MACP,NGAYDAT,LOAIGD,LOAILENH,SOLUONG,GIADAT,TRANGTHAILENH) "
-//        				+ "VALUES ('%s',getdate(),'%c','%s',%d,%f,N'Chờ khớp')",lenhDat.getMaCK(),
-//        																		lenhDat.getLoaiGD(),
-//        																		lenhDat.getLenh(),
-//        																		lenhDat.getSoLuong(),
-//        																		lenhDat.getGiaDat());
-//        	statement.executeUpdate(sql);
+        	Statement statement = connection.createStatement();
+        	String sql = String.format("INSERT INTO LENHDAT (MACP,NGAYDAT,LOAIGD,LOAILENH,SOLUONG,GIADAT,TRANGTHAILENH) "
+        				+ "VALUES ('%s',GETDATE(),'%c','%s',%d,%f,N'Chờ khớp')",lenhDat.getMaCK(),
+        																		lenhDat.getLoaiGD(),
+        																		lenhDat.getLenh(),
+        																		lenhDat.getSoLuong(),
+        																		lenhDat.getGiaDat());
+        	statement.executeUpdate(sql);
             connection.close();
             model.addAttribute("HEAD_MESSAGE", "Đặt lệnh thành công!");
             model.addAttribute("trangThaiDatClass", "head-msg-success");
